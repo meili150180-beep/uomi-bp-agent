@@ -1,0 +1,32 @@
+name: build-wasm
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Add wasm target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Build release
+        run: cargo build --release --target wasm32-unknown-unknown
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uomi_bp_agent
+          path: target/wasm32-unknown-unknown/release/*.wasm
